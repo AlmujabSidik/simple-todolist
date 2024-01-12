@@ -13,6 +13,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', [\App\Http\Controllers\HomeController::class, 'home']);
+
+Route::get('/template', function(){
+    return view('template');
+});
+
+Route::get('/login', [\App\Http\Controllers\UserController::class, 'login'])
+    ->middleware(\App\Http\Middleware\OnlyGuestMiddleware::class);
+Route::post('/login', [\App\Http\Controllers\UserController::class, 'doLogin'])
+    ->middleware(\App\Http\Middleware\OnlyGuestMiddleware::class);
+Route::post('/logout', [\App\Http\Controllers\UserController::class, 'doLogout'])
+    ->middleware(\App\Http\Middleware\OnlyMemberMiddleware::class);
+
+Route::controller(\App\Http\Controllers\TodolistController::class)->middleware([\App\Http\Middleware\OnlyMemberMiddleware::class])->group(function(){
+    Route::get('/todolist', 'todolist');
+    Route::post('/todolist', 'addTodo');
+    Route::post('/todolist/{id}/delete', 'removeTodo');
 });
